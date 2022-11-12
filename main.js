@@ -7,7 +7,7 @@ const listAPI = encodeURI(config.listAPI);
 const fileAPI = encodeURI(config.fileAPI);
 const timeout = config.timeout;
 
-const root = "/AI画廊 NSFW";
+const root = "/";
 
 let allCount = 0;
 let goodCount = 0;
@@ -22,7 +22,7 @@ function getAllFileList(callback) {
       clearInterval(interval);
       callback(allFileList);
     }
-  }, 3000);
+  }, 5000);
 }
 
 function getOnedriveData(options, fileList) {
@@ -64,30 +64,14 @@ function getRequestOptions(options) {
 
 function handleDir(options, contents, fileList) {
   for (let content of contents) {
-    let newFileList = [];
-    if (content.is_dir) {
-      fileList.push({
-        name: content.name,
-        isDir: true,
-        files: newFileList,
-      });
-      getOnedriveData(
-        {
-          path: options.path + "/" + content.name,
-          isDir: true,
-        },
-        newFileList
-      );
-    } else {
-      if (!content.name.endsWith(".png")) continue;
-      getOnedriveData(
-        {
-          path: options.path + "/" + content.name,
-          isDir: false,
-        },
-        fileList
-      );
-    }
+    if (!content.is_dir && !content.name.endsWith(".png")) continue;
+    getOnedriveData(
+      {
+        path: options.path + "/" + content.name,
+        isDir: content.is_dir,
+      },
+      fileList
+    );
   }
 }
 
@@ -99,6 +83,17 @@ function handleFile(data, fileList) {
   });
 }
 
-getAllFileList((data) => {
-  fs.writeFileSync("./fileList.json", JSON.stringify(data));
-});
+let version = 1;
+
+function getFileList() {
+  getAllFileList((data) => {
+    fs.writeFileSync("./fileList.json", JSON.stringify(data));
+    version += 1;
+  });
+}
+
+function getFileListVersion() {
+  return version;
+}
+
+getFileList();
