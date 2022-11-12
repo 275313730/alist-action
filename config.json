@@ -1,5 +1,5 @@
 {
-  "timeout": 300000,
+  "timeout": 3000000,
   "listAPI": "http://roanne.fun:5245/api/fs/list",
   "fileAPI": "http://roanne.fun:5245/api/fs/get"
 }
