@@ -29,7 +29,7 @@ function getOnedriveData(options, fileList) {
   allCount += 1;
   request(getRequestOptions(options), function (error, response, body) {
     if (!error && response.statusCode == 200) {
-      options.isDir ? handleDir(options, body.data.content, fileList) : handleFile(body.data, fileList);
+      options.isDir ? handleDir(options, body, fileList) : handleFile(body, fileList);
       goodCount += 1;
     } else {
       badCount += 1;
@@ -53,17 +53,18 @@ function getRequestOptions(options) {
   };
   if (options.isDir) {
     requestOptions.url = listAPI;
-    requestOptions.body.page = 1;
-    requestOptions.body.per_page = 0;
-    requestOptions.refresh = false;
+    //requestOptions.body.page = 1;
+    //requestOptions.body.per_page = 0;
+    //requestOptions.refresh = false;
   } else {
     requestOptions.url = fileAPI;
   }
   return requestOptions;
 }
 
-function handleDir(options, contents, fileList) {
-  for (let content of contents) {
+function handleDir(options, body, fileList) {
+  if (!body.data.content) return;
+  for (let content of body.data.content) {
     if (!content.is_dir && !content.name.endsWith(".png")) continue;
     getOnedriveData(
       {
@@ -75,11 +76,11 @@ function handleDir(options, contents, fileList) {
   }
 }
 
-function handleFile(data, fileList) {
+function handleFile(body, fileList) {
+  if (!body.data) return;
   fileList.push({
-    name: data.name,
-    isDir: false,
-    rawUrl: data.raw_url,
+    name: body.data.name,
+    rawUrl: body.data.raw_url,
   });
 }
 
